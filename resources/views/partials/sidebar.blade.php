@@ -113,7 +113,7 @@
             </a>
         </li>
         <li>
-            <a href="javascript:void(0);">
+            <a href="{{ route('setting') }}">
                 <div class="parent-icon">
                     <iconify-icon icon="material-symbols-light:settings-outline-rounded" class="flex-shrink-0"
                         width="20" height="20"></iconify-icon>

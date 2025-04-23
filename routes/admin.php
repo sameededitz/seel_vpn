@@ -17,6 +17,7 @@ use App\Livewire\Admin\VpsServersAdd;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Livewire\Admin\AllNotification;
+use App\Livewire\Admin\Setting;
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -40,6 +41,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transactions', AllPurchases::class)->name('transactions.all');
 
     Route::get('/users', AllUsers::class)->name('users.all');
+
+    Route::get('/setting', Setting::class)->name('setting');
 
     Route::get('/admin-accounts', AllAdmins::class)->name('admins.all');
 
