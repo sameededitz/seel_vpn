@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Livewire\Admin\AllNotification;
 use App\Livewire\Admin\Setting;
+use App\Livewire\Admin\TicketDetails;
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -47,4 +48,5 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/admin-accounts', AllAdmins::class)->name('admins.all');
 
     Route::get('/tickets', AllTickets::class)->name('admin.tickets');
+    Route::get('/tickets/{ticketId}', TicketDetails::class)->name('admin.ticket.details');
 });

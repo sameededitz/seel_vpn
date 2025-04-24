@@ -87,7 +87,10 @@
                                 <tr>
                                     <td>{{ $ticket->id }}</td>
                                     <td>{{ $ticket->user->name }}</td>
-                                    <td>{{ $ticket->subject }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.ticket.details', $ticket->id) }}"
+                                            class="text-primary">{{ $ticket->subject }}</a>
+                                    </td>
                                     <td>
                                         @if ($ticket->status == 'open')
                                             <span class="badge bg-success">Open</span>

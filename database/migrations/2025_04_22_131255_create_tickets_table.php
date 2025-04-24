@@ -1,30 +1,27 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Models;
 
-return new class extends Migration
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Ticket extends Model
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'subject',
+        'status',
+    ];
+
+    public function user()
     {
-        Schema::create('tickets', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('subject');
-            $table->enum('status', ['open', 'pending', 'closed'])->default('open');
-            $table->timestamps();
-        });
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function messages()
     {
-        Schema::dropIfExists('tickets');
+        return $this->hasMany(TicketMessage::class);
     }
-};
+}
