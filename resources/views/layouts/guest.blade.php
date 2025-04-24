@@ -5,7 +5,7 @@
     @include('partials.head')
 </head>
 
-<body class="bg-theme bg-theme3">
+<body class="bg-theme bg-theme2">
 
     <!--wrapper-->
     <div class="wrapper">
