@@ -32,7 +32,7 @@ Route::get('/seed', function () {
     return 'Database seeded';
 });
 Route::get('/migrate-refresh-seed', function () {
-    Artisan::call('migrate --seed');
+    Artisan::call('migrate:fresh --seed');
     return 'Database migrated and seeded';
 });
 Route::get('/optimize-clear', function () {
