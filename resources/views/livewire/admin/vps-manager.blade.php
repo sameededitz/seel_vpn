@@ -85,7 +85,7 @@
     </div>
 
     <div class="row mt-2">
-        <div class="col-12">
+        <div class="col-12 col-md-6">
             <div class="card">
                 <div class="card-body">
                     <div class="widget-heading d-flex justify-content-between align-items-center">
@@ -95,6 +95,20 @@
                     </div>
                     <div class="text-info">
                         {{ $ikev2ConnectedUsers }} connected users
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="widget-heading d-flex justify-content-between align-items-center">
+                        <h6 class="mb-1">WireGuard</h6>
+                        <span
+                            class="badge badge-light-{{ $wireguardStatus == 'Running' ? 'success' : 'danger' }}">{{ $ikev2Status == 'Running' ? 'Running' : $ikev2Status }}</span>
+                    </div>
+                    <div class="text-info">
+                        {{ $wireguardConnectedUsers }} connected users
                     </div>
                 </div>
             </div>

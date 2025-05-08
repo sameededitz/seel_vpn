@@ -21,7 +21,10 @@ class VpsManager extends Component
     public $diskUsage = 'N/A';
     public $isLoading = false;
 
+    public $wireguardStatus = 'Unknown';
     public $ikev2Status = 'Unknown';
+
+    public $wireguardConnectedUsers = 0;
     public $ikev2ConnectedUsers = 0;
 
     public $connectedUsers = [];
@@ -78,6 +81,7 @@ HTML;
             list($used, $total, $percent) = preg_split('/\s+/', $diskUsageRaw);
             $this->diskUsage = "$used / $total ($percent)";
 
+            $this->fetchWireguardStatus($ssh);
             $this->fetchIkev2Status($ssh);
             $this->fetchConnectedUsers();
 
@@ -259,6 +263,17 @@ HTML;
         return $sftp;
     }
 
+    private function fetchWireguardStatus($ssh)
+    {
+        try {
+            $status = trim($ssh->exec("systemctl is-active wg-quick@wg0"));
+            $this->wireguardStatus = ($status === 'active') ? 'Running' : 'Not Running';
+        } catch (\Exception $e) {
+            Log::channel('ssh')->error("Error fetching WireGuard status: " . $e->getMessage());
+            $this->wireguardStatus = 'Error';
+        }
+    }
+
     private function fetchIkev2Status($ssh)
     {
         try {
@@ -273,7 +288,7 @@ HTML;
     public function fetchConnectedUsers()
     {
         try {
-            $apiUrl = "http://{$this->server->ip_address}:5000/api/ikev2/connected-users";
+            $apiUrl = "http://{$this->server->ip_address}:5000/api/vpn/all-connected-users";
             $apiToken = env('VPS_API_TOKEN'); // API Token
             $response = Http::withHeaders([
                 'X-API-Token' => $apiToken
@@ -288,7 +303,7 @@ HTML;
                 throw new \Exception("Invalid API response: null or non-array received");
             }
 
-            if (!isset($data['total_connected'])) {
+            if (!isset($data['total_connected'], $data['wireguard_connected'], $data['ikev2_connected'])) {
                 throw new \Exception("Invalid API response format");
             }
 
@@ -312,7 +327,8 @@ HTML;
                 })->toArray();
             }
 
-            $this->ikev2ConnectedUsers = $data['total_connected'] ?? 0;
+            $this->wireguardConnectedUsers = $data['wireguard_connected'] ?? 0;
+            $this->ikev2ConnectedUsers = $data['ikev2_connected'] ?? 0;
         } catch (\Exception $e) {
             $this->connectedUsers = null;
             $this->ikev2ConnectedUsers = 'Error';

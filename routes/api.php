@@ -9,14 +9,14 @@ use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\SocialController;
 
-Route::middleware('guest')->group(function () {
+Route::middleware('guest', 'throttle:api')->group(function () {
     Route::post('/signup', [AuthController::class, 'signup'])->name('api.signup');
 
     Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 
-    Route::post('/login/google',[SocialController::class, 'google'])->name('api.login.google');
+    Route::post('/login/google', [SocialController::class, 'google'])->name('api.login.google');
 
-    Route::post('/login/apple',[SocialController::class, 'apple'])->name('api.login.apple');
+    Route::post('/login/apple', [SocialController::class, 'apple'])->name('api.login.apple');
 
     Route::post('/email/resend-verification', [AccountController::class, 'resendEmail'])->name('api.verify.resend');
 
@@ -27,7 +27,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [AccountController::class, 'resetPassword'])->name('api.password.update');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'throttle:api')->group(function () {
     Route::get('/user', [UserController::class, 'user'])->name('api.user');
 
     Route::post('/user/update', [UserController::class, 'updateProfile'])->name('api.profile.update');
@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/servers', [ResourceController::class, 'servers'])->name('api.servers');
 
     Route::get('/nearest-server', [ResourceController::class, 'nearestServer']);
-    
+
     Route::get('/tickets', [TicketController::class, 'index'])->name('api.tickets.index');
 
     Route::get('/ticket/{id}', [TicketController::class, 'show'])->name('api.tickets.show');
