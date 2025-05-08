@@ -58,6 +58,8 @@ Route::middleware('auth:sanctum', 'throttle:api')->group(function () {
 
     Route::post('/ticket/{ticketId}/close', [TicketController::class, 'close'])->name('api.tickets.close');
 
+    Route::post('/tickets/{ticketId}/priority', [TicketController::class, 'priority'])->name('api.tickets.priority');
+
     Route::delete('/ticket/{ticketId}/delete', [TicketController::class, 'destroy'])->name('api.tickets.delete');
 });
 

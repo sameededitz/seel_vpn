@@ -48,6 +48,7 @@ class TicketController extends Controller
         $validator = Validator::make($request->all(), [
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
+            'priority' => 'nullable|string|in:low,medium,high',
         ]);
 
         if ($validator->fails()) {
@@ -61,6 +62,7 @@ class TicketController extends Controller
         $ticket = $user->tickets()->create([
             'subject' => $request->subject,
             'status' => 'open',
+            'priority' => $request->priority ?? 'medium',
         ]);
 
         $ticket->messages()->create([
@@ -149,6 +151,36 @@ class TicketController extends Controller
         return response()->json(['message' => 'Ticket closed successfully'], 200);
     }
 
+    public function priority(Request $request, $ticketId)
+    {
+        $validator = Validator::make($request->all(), [
+            'priority' => 'required|in:low,medium,high',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()], 422);
+        }
+
+        /** @var \App\Models\User $user **/
+        $user = Auth::user();
+        $ticket = $user->tickets()->find($ticketId);
+
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        Gate::authorize('update', $ticket);
+
+        $ticket->update([
+            'priority' => $request->priority,
+        ]);
+
+        return response()->json([
+            'message' => 'Ticket priority updated successfully!',
+            'ticket' => new TicketResource($ticket)
+        ], 200);
+    }
+    
     public function destroy($ticketId)
     {
         /** @var \App\Models\User $user **/

@@ -225,3 +225,11 @@ ul {
     font-size: 1rem !important;
     cursor: pointer !important;
 }
+
+.mw-5rem{
+    min-width: 5rem !important;
+ }
+ 
+ .mw-max-content{
+    min-width: max-content !important;
+ }

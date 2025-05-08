@@ -127,7 +127,6 @@ class TicketDetails extends Component
         $this->dispatch('sweetAlert', title: 'Deleted!', message: 'Message and attachments have been deleted.', type: 'success');
     }
 
-
     public function sendReply()
     {
         $this->validate();
@@ -164,6 +163,15 @@ class TicketDetails extends Component
         $ticket->save();
 
         $this->dispatch('sweetAlert', title: 'Updated!', message: 'Ticket status has been updated.', type: 'success');
+    }
+
+    public function updatePriority($ticketId, $priority)
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $ticket->priority = $priority;
+        $ticket->save();
+
+        $this->dispatch('sweetAlert', title: 'Updated!', message: 'Ticket priority has been updated.', type: 'success');
     }
 
     public function render()

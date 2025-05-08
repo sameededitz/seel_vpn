@@ -17,9 +17,12 @@ class AllTickets extends Component
     #[Url]
     public $status = '';
 
+    #[Url]
+    public $priority = '';
+
     public function resetFilters()
     {
-        $this->reset('search', 'status');
+        $this->reset('search', 'status', 'priority');
     }
 
     public function updateStatus($ticketId, $status)
@@ -29,6 +32,15 @@ class AllTickets extends Component
         $ticket->save();
 
         $this->dispatch('sweetAlert', title: 'Updated!', message: 'Ticket status has been updated.', type: 'success');
+    }
+
+    public function updatePriority($ticketId, $priority)
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $ticket->priority = $priority;
+        $ticket->save();
+
+        $this->dispatch('sweetAlert', title: 'Updated!', message: 'Ticket priority has been updated.', type: 'success');
     }
 
     public function render()
@@ -45,6 +57,9 @@ class AllTickets extends Component
             })
             ->when($this->status, function ($query) {
                 $query->where('status', $this->status);
+            })
+            ->when($this->priority, function ($query) {
+                $query->where('priority', $this->priority);
             })
             ->latest()
             ->paginate($this->perPage);
