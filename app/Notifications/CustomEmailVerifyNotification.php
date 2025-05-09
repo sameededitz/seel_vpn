@@ -37,7 +37,6 @@ class CustomEmailVerifyNotification extends Notification
     public function toMail(object $notifiable)
     {
         $verficationUrl = $this->verificationUrl($notifiable);
-        dd($verficationUrl);
         return (new CustomEmailVerifyMail($notifiable,$verficationUrl));
     }
 
