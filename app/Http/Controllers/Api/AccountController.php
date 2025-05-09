@@ -46,7 +46,8 @@ class AccountController extends Controller
             ], 200);
         }
 
-        SendEmailVerification::dispatch($user)->delay(now()->addSeconds(5));
+        // SendEmailVerification::dispatch($user)->delay(now()->addSeconds(5));
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
             'status' => true,
