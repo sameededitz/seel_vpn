@@ -58,11 +58,11 @@ class SalesAnalytic extends Component
 
     public function topBoughtPlans()
     {
-        $this->boughtPlans = Plan::select('plans.id', 'plans.name', 'plans.price')
+        $this->boughtPlans = Plan::select('plans.id', 'plans.name', 'plans.original_price', 'plans.discount_price')
             ->join('purchases', 'purchases.plan_id', '=', 'plans.id')
             ->where('purchases.created_at', '>=', Carbon::now()->subDays(30))
             ->where('purchases.status', 'active')
-            ->groupBy('plans.id', 'plans.name', 'plans.price')
+            ->groupBy('plans.id', 'plans.name', 'plans.original_price')
             ->selectRaw('COUNT(purchases.id) as total_sales, SUM(purchases.amount_paid) as total_revenue')
             ->orderByDesc('total_revenue')
             ->limit(10)

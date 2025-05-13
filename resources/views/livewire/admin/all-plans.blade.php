@@ -58,7 +58,8 @@
                                     <li>
                                         <div class="dropdown-header text-start d-flex justify-content-between mb-3">
                                             <h6 class="text-uppercase mb-0">Filters</h6>
-                                            <h6 class="text-danger mb-0" wire:click="resetFilters" style="cursor: pointer;">Reset</h6>
+                                            <h6 class="text-danger mb-0" wire:click="resetFilters"
+                                                style="cursor: pointer;">Reset</h6>
                                         </div>
                                         <div class="dropdown-item mb-3">
                                             <label for="priceFilter" class="mb-1">Filter by Price</label>
@@ -73,8 +74,7 @@
                                         </div>
                                         <div class="dropdown-item">
                                             <label for="durationFilter" class="mb-1">Filter by Duration</label>
-                                            <select class="form-select w-100"
-                                                wire:model.live="durationUnitFilter">
+                                            <select class="form-select w-100" wire:model.live="durationUnitFilter">
                                                 <option value="" selected>Duration Unit</option>
                                                 <option value="day">Day</option>
                                                 <option value="week">Week</option>
@@ -103,7 +103,11 @@
                                 <tr>
                                     <td>{{ $plan->id }}</td>
                                     <td>{{ $plan->name }}</td>
-                                    <td>${{ $plan->price }}</td>
+                                    <td>
+                                        <span
+                                            class="text-decoration-line-through text-muted">${{ $plan->original_price }}</span>
+                                        <span>${{ $plan->discount_price ?? $plan->original_price }}</span>
+                                    </td>
                                     <td> {{ $plan->duration }} {{ Str::title($plan->duration_unit) }}</td>
                                     <td>{{ $plan->created_at->toFormattedDateString() }}</td>
                                     <td>
@@ -167,10 +171,18 @@
                             @enderror
                         </div>
                         <div class="col-12">
-                            <label for="price" class="form-label">Price</label>
-                            <input type="number" class="form-control" id="price" step="0.01"
-                                placeholder="Price" wire:model.defer="price">
-                            @error('price')
+                            <label for="original_price" class="form-label">Original Price</label>
+                            <input type="number" class="form-control" id="original_price" step="0.01"
+                                placeholder="Original Price" wire:model.defer="original_price">
+                            @error('original_price')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-12">
+                            <label for="discount_price" class="form-label">Discount Price</label>
+                            <input type="number" class="form-control" id="discount_price" step="0.01"
+                                placeholder="Discount Price" wire:model.defer="discount_price">
+                            @error('discount_price')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>

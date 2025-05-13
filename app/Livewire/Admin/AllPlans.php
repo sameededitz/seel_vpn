@@ -21,7 +21,8 @@ class AllPlans extends Component
 
     public $planId;
     public $name;
-    public $price;
+    public $original_price;
+    public $discount_price;
     public $duration;
     public $duration_unit;
     public $description;
@@ -31,7 +32,8 @@ class AllPlans extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'original_price' => 'required|numeric|min:0',
+            'discount_price' => 'nullable|numeric|min:0',
             'duration' => 'required|integer|min:1',
             'duration_unit' => 'required|string|in:day,week,month,year',
             'description' => 'nullable|string|max:1000',
@@ -43,7 +45,8 @@ class AllPlans extends Component
         $this->reset([
             'planId',
             'name',
-            'price',
+            'original_price',
+            'discount_price',
             'duration',
             'duration_unit',
             'description',
@@ -60,7 +63,8 @@ class AllPlans extends Component
         $plan = Plan::findOrFail($planId);
         $this->planId = $plan->id;
         $this->name = $plan->name;
-        $this->price = $plan->price;
+        $this->original_price = $plan->original_price;
+        $this->discount_price = $plan->discount_price;
         $this->duration = $plan->duration;
         $this->duration_unit = $plan->duration_unit;
         $this->description = $plan->description;
@@ -74,7 +78,8 @@ class AllPlans extends Component
             $plan = Plan::findOrFail($this->planId);
             $plan->update([
                 'name' => $this->name,
-                'price' => $this->price,
+                'original_price' => $this->original_price,
+                'discount_price' => $this->discount_price,
                 'duration' => $this->duration,
                 'duration_unit' => $this->duration_unit,
                 'description' => $this->description,
@@ -83,7 +88,8 @@ class AllPlans extends Component
         } else {
             Plan::create([
                 'name' => $this->name,
-                'price' => $this->price,
+                'original_price' => $this->original_price,
+                'discount_price' => $this->discount_price,
                 'duration' => $this->duration,
                 'duration_unit' => $this->duration_unit,
                 'description' => $this->description,
@@ -131,7 +137,13 @@ class AllPlans extends Component
     {
         $plans = Plan::query()
             ->when($this->search, fn($query) => $query->where('name', 'like', '%' . $this->search . '%'))
-            ->when($this->priceFilter, fn($query) => $query->where('price', '<=', $this->priceFilter))
+            ->when($this->priceFilter, fn($query) => $query->where(function ($query) {
+                $query->where('discount_price', '<=', $this->priceFilter)
+                    ->orWhere(function ($query) {
+                        $query->whereNull('discount_price')
+                            ->where('original_price', '<=', $this->priceFilter);
+                    });
+            }))
             ->when($this->durationUnitFilter, fn($query) => $query->where('duration_unit', $this->durationUnitFilter))
             ->latest()
             ->paginate($this->perPage);
