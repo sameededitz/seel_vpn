@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PurchaseResource;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Plan;
 use Carbon\Carbon;
@@ -74,7 +75,7 @@ class PurchaseController extends Controller
         return response()->json([
             'status' => true,
             'message' => $message,
-            'purchase' => $purchase->load('plan')
+            'purchase' => new PurchaseResource($purchase->load('plan', 'user')),
         ], 200);
     }
 
@@ -85,7 +86,7 @@ class PurchaseController extends Controller
         $activePlan = $user->purchases()
             ->where('status', 'active')
             ->where('end_date', '>', now())
-            ->with('plan')
+            ->with('plan', 'user')
             ->first();
 
         if (!$activePlan) {
@@ -98,7 +99,7 @@ class PurchaseController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Active plan found.',
-            'plan' => $activePlan
+            'plan' => new PurchaseResource($activePlan),
         ], 200);
     }
 
@@ -106,10 +107,11 @@ class PurchaseController extends Controller
     {
         /** @var \App\Models\User $user **/
         $user = Auth::user();
-        $purchases = $user->purchases()->with('plan')->latest()->get();
+        $purchases = $user->purchases()->with('plan','user')->latest()->get();
         return response()->json([
             'status' => true,
-            'purchases' => $purchases
+            'purchases' => PurchaseResource::collection($purchases),
+            'message' => 'Purchase history retrieved successfully.',
         ], 200);
     }
     private function calculateExpiration($startDate, $duration, $unit)
