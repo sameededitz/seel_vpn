@@ -16,9 +16,6 @@ class BillingAddressResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => $this->whenLoaded('user', function () {
-                return new UserResource($this->user);
-            }),
             'name' => $this->full_name,
             'address' => $this->address,
             'city' => $this->city,
