@@ -168,10 +168,6 @@
                                 wire:click="resetForm()" data-bs-toggle="modal" data-bs-target="#billingModel">
                                 Add Billing Address
                             </button>
-                            <button class="btn btn-outline-danger _effect--ripple waves-effect waves-light"
-                                wire:click="$js.confirmBillingDelete()">
-                                Delete Billing Address
-                            </button>
                         </div>
                     </div>
                 </div>
