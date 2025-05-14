@@ -142,10 +142,14 @@
                                     {{ $user->billingAddress->postal_code }} </p>
                             </li>
                         </ul>
-                        <div class="d-flex justify-content-end">
+                        <div class="d-flex justify-content-end align-items-center gap-2">
                             <button class="btn btn-outline-primary _effect--ripple waves-effect waves-light"
                                 data-bs-toggle="modal" data-bs-target="#billingModel" wire:click="editBillingAddress()">
                                 Edit Billing Address
+                            </button>
+                            <button class="btn btn-outline-danger _effect--ripple waves-effect waves-light"
+                                wire:click="$js.confirmBillingDelete()">
+                                Delete Billing Address
                             </button>
                         </div>
                     </div>
