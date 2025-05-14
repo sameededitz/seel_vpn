@@ -103,6 +103,29 @@ class PurchaseController extends Controller
         ], 200);
     }
 
+    public function viewPurchase($id)
+    {
+        /** @var \App\Models\User $user **/
+        $user = Auth::user();
+        $purchase = $user->purchases()
+            ->where('id', $id)
+            ->with('plan', 'user')
+            ->first();
+
+        if (!$purchase) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Purchase not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Purchase found.',
+            'purchase' => new PurchaseResource($purchase),
+        ], 200);
+    }
+
     public function history()
     {
         /** @var \App\Models\User $user **/

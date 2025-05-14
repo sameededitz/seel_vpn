@@ -43,6 +43,8 @@ Route::middleware('auth:sanctum', 'throttle:api')->group(function () {
 
     Route::get('/purchase/history', [PurchaseController::class, 'history'])->name('api.plan.history');
 
+    Route::get('/purchase/{id}', [PurchaseController::class, 'viewPurchase'])->name('api.plan.show');
+
     Route::post('/purchase/add', [PurchaseController::class, 'addPurchase'])->name('api.add.purchase');
 
     Route::get('/servers', [ResourceController::class, 'servers'])->name('api.servers');
