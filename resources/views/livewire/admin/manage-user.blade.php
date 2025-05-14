@@ -144,7 +144,7 @@
                         </ul>
                         <div class="d-flex justify-content-end">
                             <button class="btn btn-outline-primary _effect--ripple waves-effect waves-light"
-                                wire:click="$emit('openModal', 'admin.edit-billing-address', {{ json_encode(['user' => $user]) }})">
+                                data-bs-toggle="modal" data-bs-target="#billingModel" wire:click="editBillingAddress()">
                                 Edit Billing Address
                             </button>
                         </div>
@@ -161,7 +161,7 @@
                         <p class="mb-0">No billing address available.</p>
                         <div class="d-flex justify-content-end">
                             <button class="btn btn-outline-primary _effect--ripple waves-effect waves-light"
-                                wire:click="$emit('openModal', 'admin.add-billing-address', {{ json_encode(['user' => $user]) }})">
+                                wire:click="resetForm()" data-bs-toggle="modal" data-bs-target="#billingModel">
                                 Add Billing Address
                             </button>
                         </div>
@@ -257,9 +257,83 @@
             </div>
         @endif
     </div>
+
+    <div class="modal fade" id="billingModel" tabindex="-1" wire:ignore.self aria-labelledby="billingModel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        {{ $isEdit ? 'Edit Billing Address' : 'Add New Billing Address' }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" wire:click="resetForm"
+                        aria-label="Close"></button>
+                </div>
+                <form class="row g-2" wire:submit.prevent="saveAddress">
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" placeholder="Full Name"
+                                wire:model.defer="full_name">
+                            @error('full_name')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" placeholder="Address"
+                                wire:model.defer="address">
+                            @error('address')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-12">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" placeholder="City"
+                                wire:model.defer="city">
+                            @error('city')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-12">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" placeholder="State"
+                                wire:model.defer="state">
+                            @error('state')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="col-12">
+                            <label for="postal_code" class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" id="postal_code" placeholder="Postal Code"
+                                wire:model.defer="postal_code">
+                            @error('postal_code')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                            class="btn btn-outline-info d-flex align-items-center justify-content-center"
+                            wire:click="resetForm" data-bs-dismiss="modal">Close</button>
+                        <button type="submit"
+                            class="btn btn-outline-success d-flex align-items-center justify-content-center">
+                            {{ $isEdit ? 'Update' : 'Save' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @script
     <script>
+        $wire.on('closeModel', (event) => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('billingModel'));
+            modal.hide();
+        });
+
         $js('confirmCancelPlan', () => {
             Swal.fire({
                 title: 'Are you sure?',

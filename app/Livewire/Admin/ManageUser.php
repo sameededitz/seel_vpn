@@ -13,10 +13,60 @@ class ManageUser extends Component
     public User $user;
     public $plans, $selectedPlan;
 
+    public $isEdit = false;
+    public $full_name, $address, $city, $state, $postal_code;
+
     public function mount(User $user)
     {
-        $this->user = $user->load(['purchases.plan', 'activePlan.plan','billingAddress']);
+        $this->user = $user->load(['purchases.plan', 'activePlan.plan', 'billingAddress']);
         $this->plans = Plan::all();
+    }
+
+    public function resetForm()
+    {
+        $this->isEdit = false;
+        $this->full_name = null;
+        $this->address = null;
+        $this->city = null;
+        $this->state = null;
+        $this->postal_code = null;
+    }
+
+    public function editBillingAddress()
+    {
+        $this->isEdit = true;
+        $this->full_name = $this->user->billingAddress->full_name;
+        $this->address = $this->user->billingAddress->address;
+        $this->city = $this->user->billingAddress->city;
+        $this->state = $this->user->billingAddress->state;
+        $this->postal_code = $this->user->billingAddress->postal_code;
+    }
+
+    public function saveAddress()
+    {
+        $this->validate([
+            'full_name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'postal_code' => 'required|string|max:10',
+        ]);
+
+        $this->user->billingAddress()->updateOrCreate(
+            ['user_id' => $this->user->id],
+            [
+                'full_name' => $this->full_name,
+                'address' => $this->address,
+                'city' => $this->city,
+                'state' => $this->state,
+                'postal_code' => $this->postal_code,
+            ]
+        );
+
+        $this->isEdit = false;
+        $this->dispatch('closeModel');
+        $this->dispatch('sweetAlert', title: 'Success', message: 'Billing address updated successfully.', type: 'success');
+        $this->resetForm();
     }
 
     public function addPlan()
