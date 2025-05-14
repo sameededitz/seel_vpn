@@ -69,6 +69,12 @@ class ManageUser extends Component
         $this->resetForm();
     }
 
+    public function deleteBillingAddress()
+    {
+        $this->user->billingAddress()->delete();
+        $this->dispatch('sweetAlert', title: 'Success', message: 'Billing address deleted successfully.', type: 'success');
+    }
+
     public function addPlan()
     {
         $this->validate([

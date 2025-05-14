@@ -159,10 +159,14 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-0">No billing address available.</p>
-                        <div class="d-flex justify-content-end">
+                        <div class="d-flex justify-content-end align-items-center gap-2">
                             <button class="btn btn-outline-primary _effect--ripple waves-effect waves-light"
                                 wire:click="resetForm()" data-bs-toggle="modal" data-bs-target="#billingModel">
                                 Add Billing Address
+                            </button>
+                            <button class="btn btn-outline-danger _effect--ripple waves-effect waves-light"
+                                wire:click="$js.confirmBillingDelete()">
+                                Delete Billing Address
                             </button>
                         </div>
                     </div>
@@ -332,6 +336,22 @@
         $wire.on('closeModel', (event) => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('billingModel'));
             modal.hide();
+        });
+
+        $js('confirmBillingDelete', () => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You want to delete this billing address?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $wire.deleteBillingAddress();
+                }
+            });
         });
 
         $js('confirmCancelPlan', () => {
