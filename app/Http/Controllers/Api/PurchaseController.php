@@ -30,6 +30,9 @@ class PurchaseController extends Controller
 
         $plan = Plan::findOrFail($request->plan_id);
 
+        // Determine the price to use
+        $price = $plan->discount_price ?? $plan->original_price;
+
         /** @var \App\Models\Purchase $purchase **/
         $purchase = $user->purchases()
             ->where('status', 'active')
@@ -50,6 +53,7 @@ class PurchaseController extends Controller
                 'plan_id' => $plan->id,
                 'end_date' => $newEndDate,
                 'status' => 'active',
+                'amount_paid' => $purchase->amount_paid + $price,
             ]);
 
             $message = 'Purchase Extended successfully!';
@@ -58,7 +62,7 @@ class PurchaseController extends Controller
             // Create a new purchase
             $purchase = $user->purchases()->create([
                 'plan_id' => $plan->id,
-                'amount_paid' => $plan->price,
+                'amount_paid' => $price,
                 'start_date' => now(),
                 'end_date' => $expiresAt,
                 'status' => 'active',
@@ -118,5 +122,4 @@ class PurchaseController extends Controller
             default => $startDate->addDays(7),
         };
     }
-
 }
