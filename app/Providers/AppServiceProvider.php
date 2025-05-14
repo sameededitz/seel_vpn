@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Http\Request;
 use App\Listeners\UpdateLastLogin;
-use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(Verified::class, UpdateLastLogin::class);
+        Event::listen(Login::class, UpdateLastLogin::class);
 
         RateLimiter::for('api', function (Request $request) {
             $maxAttempts = 60;

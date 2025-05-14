@@ -30,8 +30,9 @@
 		<div class="overlay toggle-icon"></div>
 		<!--end overlay-->
 		<!--End Back To Top Button-->
-		<footer class="page-footer">
+		<footer class="page-footer d-flex justify-content-between">
 			<p class="mb-0">Copyright © {{ date('Y') }}. All right reserved.</p>
+			<p class="mb-0">Powered by <a href="https://www.tecclubx.com">TecClub</a></p>
 		</footer>
 	</div>
 	<!--end wrapper-->

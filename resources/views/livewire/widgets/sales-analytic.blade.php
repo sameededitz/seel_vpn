@@ -65,7 +65,10 @@
                             <div class="d-flex align-items-center">
                                 <div class="ms-2">
                                     <h6 class="mb-1">{{ $plan->name }}</h6>
-                                    <p class="mb-0">${{ number_format($plan->price, 2) }}</p>
+                                    @php
+                                        $price = $plan->discount_price ?? $plan->original_price;
+                                    @endphp
+                                    <p class="mb-0">${{ number_format($price, 2) }}</p>
                                 </div>
                             </div>
                         </div>

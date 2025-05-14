@@ -15,12 +15,14 @@ class Plan extends Model
         'name',
         'slug',
         'description',
-        'price',
+        'original_price',
+        'discount_price',
         'duration',
         'duration_unit',
     ];
     protected $casts = [
-        'price' => 'decimal:2',
+        'original_price' => 'decimal:2',
+        'discount_price' => 'decimal:2',
         'duration' => 'integer',
     ];
 

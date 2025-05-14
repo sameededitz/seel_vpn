@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('name', 60);
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->decimal('price', 8, 2);
+            $table->decimal('original_price', 8, 2); // Added original_price
+            $table->decimal('discount_price', 8, 2)->nullable(); // Added discount_price
             $table->integer('duration');
             $table->enum('duration_unit', ['day', 'week', 'month', 'year'])->default('day');
             $table->timestamps();

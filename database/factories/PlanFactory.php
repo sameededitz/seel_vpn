@@ -18,7 +18,8 @@ class PlanFactory extends Factory
     {
         return [
             'name' => $this->faker->word,
-            'price' => $this->faker->randomFloat(2, 1, 100),
+            'original_price' => $this->faker->randomFloat(2, 1, 100),
+            'discount_price' => $this->faker->randomFloat(2, 1, 100),
             'duration' => $this->faker->numberBetween(1, 12),
             'duration_unit' => $this->faker->randomElement(['day', 'week', 'month', 'year']),
             'description' => $this->faker->sentence,
