@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\SocialController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\ResourceController;
-use App\Http\Controllers\Api\SocialController;
+use App\Http\Controllers\Api\BillingAddressController;
 
 Route::middleware('guest', 'throttle:api')->group(function () {
     Route::post('/signup', [AuthController::class, 'signup'])->name('api.signup');
@@ -61,6 +62,12 @@ Route::middleware('auth:sanctum', 'throttle:api')->group(function () {
     Route::post('/tickets/{ticketId}/priority', [TicketController::class, 'priority'])->name('api.tickets.priority');
 
     Route::delete('/ticket/{ticketId}/delete', [TicketController::class, 'destroy'])->name('api.tickets.delete');
+
+    Route::get('/billing-address', [BillingAddressController::class, 'show'])->name('api.billing.address.show');
+
+    Route::post('/billing-address/store', [BillingAddressController::class, 'store'])->name('api.billing.address.store');
+
+    Route::delete('/billing-address/delete', [BillingAddressController::class, 'destroy'])->name('api.billing.address.delete');
 });
 
 Route::post('/feedback/store', [ResourceController::class, 'addFeedback'])->name('api.feedback.add');

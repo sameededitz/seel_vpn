@@ -109,6 +109,66 @@
                 </div>
             </div>
         </div>
+        @if ($user->role == 'user' && $user->billingAddress)
+            <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Billing Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="ps-0 fs-6 mb-0">
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <p class="w-30 fw-semibold text-primary-light">Full Name</p>
+                                <p class="w-70 fw-normal">: {{ $user->billingAddress->full_name }} </p>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <p class="w-30 text-md fw-semibold text-primary-light"> Address</p>
+                                <p class="w-70 text-secondary-light fw-normal">:
+                                    {{ $user->billingAddress->address }} </p>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <p class="w-30 text-md fw-semibold text-primary-light"> City</p>
+                                <p class="w-70 text-secondary-light fw-normal">:
+                                    {{ $user->billingAddress->city }} </p>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <p class="w-30 text-md fw-semibold text-primary-light"> State</p>
+                                <p class="w-70 text-secondary-light fw-normal">:
+                                    {{ $user->billingAddress->state }} </p>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <p class="w-30 text-md fw-semibold text-primary-light"> Postal Code</p>
+                                <p class="w-70 text-secondary-light fw-normal">:
+                                    {{ $user->billingAddress->postal_code }} </p>
+                            </li>
+                        </ul>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-outline-primary _effect--ripple waves-effect waves-light"
+                                wire:click="$emit('openModal', 'admin.edit-billing-address', {{ json_encode(['user' => $user]) }})">
+                                Edit Billing Address
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Billing Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">No billing address available.</p>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-outline-primary _effect--ripple waves-effect waves-light"
+                                wire:click="$emit('openModal', 'admin.add-billing-address', {{ json_encode(['user' => $user]) }})">
+                                Add Billing Address
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         @if ($user->role == 'user')
             <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 mb-3">
                 <div class="card">
@@ -144,7 +204,8 @@
                             <x-alert type="warning" message="{{ $errors->first() }}" />
                         @endif
                         <div class="form-group mb-3">
-                            <select class="form-select w-100" id="exampleFormControlSelect1" wire:model="selectedPlan">
+                            <select class="form-select w-100" id="exampleFormControlSelect1"
+                                wire:model="selectedPlan">
                                 <option value="" selected>Select Plan</option>
                                 @foreach ($plans as $plan)
                                     <option value="{{ $plan->id }}">{{ $plan->name }}
@@ -176,7 +237,8 @@
                                 <div class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="me-auto">
                                         <div class="fw-bold title">{{ $purchase->plan->name }}</div>
-                                        <p class="sub-title mb-0">({{ $purchase->start_date->toFormattedDateString() }}
+                                        <p class="sub-title mb-0">
+                                            ({{ $purchase->start_date->toFormattedDateString() }}
                                             -
                                             {{ $purchase->end_date->toFormattedDateString() }})
                                             - {{ Str::title($purchase->status) }}</p>

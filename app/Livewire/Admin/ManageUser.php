@@ -15,7 +15,7 @@ class ManageUser extends Component
 
     public function mount(User $user)
     {
-        $this->user = $user->load(['purchases.plan', 'activePlan.plan']);
+        $this->user = $user->load(['purchases.plan', 'activePlan.plan','billingAddress']);
         $this->plans = Plan::all();
     }
 

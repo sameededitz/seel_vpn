@@ -93,6 +93,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Purchase::class)->where('status', 'active')->where('end_date', '>', now())->latest();
     }
 
+    public function billingAddress()
+    {
+        return $this->hasOne(BillingAddress::class);
+    }
+
     public function isBanned(): bool
     {
         return !is_null($this->banned_at);
