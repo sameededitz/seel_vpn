@@ -115,6 +115,7 @@ class AllUsers extends Component
                 'role' => $this->role,
                 'password' => Hash::make($this->password),
                 'email_verified_at' => now(),
+                'role' => 'user',
             ]);
             $message = 'User created successfully.';
         }
