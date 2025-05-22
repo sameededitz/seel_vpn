@@ -65,7 +65,6 @@ class ResourceController extends Controller
         ];
 
         return response()->json([
-            'status' => true,
             'tos' => $options['tos'],
             'privacy_policy' => $options['privacy_policy'],
             'about_us' => $options['about_us'],
