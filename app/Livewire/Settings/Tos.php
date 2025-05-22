@@ -9,12 +9,14 @@ class Tos extends Component
 {
     public $tos;
     public $privacy_policy;
+    public $about_us;
 
     protected function rules()
     {
         return [
             'tos' => 'required',
             'privacy_policy' => 'required',
+            'about_us' => 'required',
         ];
     }
 
@@ -22,6 +24,7 @@ class Tos extends Component
     {
         $this->tos = Option::where('key', 'tos')->first()->value ?? '';
         $this->privacy_policy = Option::where('key', 'privacy_policy')->first()->value ?? '';
+        $this->about_us = Option::where('key', 'about_us')->first()->value ?? '';
     }
 
     public function save()
@@ -36,8 +39,12 @@ class Tos extends Component
             ['key' => 'privacy_policy'],
             ['value' => $this->privacy_policy]
         );
+        Option::updateOrCreate(
+            ['key' => 'about_us'],
+            ['value' => $this->about_us]
+        );
 
-        $this->reset(['tos', 'privacy_policy']);
+        $this->reset(['tos', 'privacy_policy', 'about_us']);
 
         $this->dispatch('sweetAlert', title: 'Success', message: 'Settings updated successfully.', type: 'success');
     }

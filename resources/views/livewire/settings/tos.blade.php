@@ -24,6 +24,10 @@
                 <div class="card-body">
                     <form class="row g-2" wire:submit.prevent="save">
                         <div class="col-12" wire:ignore>
+                            <label class="form-label" for="about_us">About US</label>
+                            <textarea name="about_us" id="myeditorinstance" wire:model="about_us" class="form-control tinymce-editor"></textarea>
+                        </div>
+                        <div class="col-12" wire:ignore>
                             <label class="form-label" for="privacy_policy">Privacy Policy</label>
                             <textarea name="privacy_policy" id="myeditorinstance" wire:model="privacy_policy" class="form-control tinymce-editor"></textarea>
                         </div>
