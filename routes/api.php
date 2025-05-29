@@ -58,6 +58,6 @@ Route::post('/feedback/store', [ResourceController::class, 'addFeedback'])->name
 
 Route::get('/vps-servers', [ResourceController::class, 'vpsServers']);
 
-Route::get('/plans', [ResourceController::class, 'pl`ans']);
+Route::get('/plans', [ResourceController::class, 'plans']);
 
 Route::get('/options', [ResourceController::class, 'options']);
