@@ -68,6 +68,15 @@
                 <div class="menu-title">Users</div>
             </a>
         </li>
+        <li>
+            <a href="{{ route('promo-codes.all') }}">
+                <div class="parent-icon">
+                    <iconify-icon icon="ri:price-tag-3-line" class="flex-shrink-0" width="20"
+                        height="20"></iconify-icon>
+                </div>
+                <div class="menu-title">Promo Codes</div>
+            </a>
+        </li>
 
         <li class="menu-label">Panel</li>
 
@@ -129,14 +138,14 @@
                 </li>
             </ul>
         </li>
-        {{-- <li class="menu-label">Others</li>
+        <li class="menu-label">Others</li>
         <li>
             <a href="https://linktr.ee/sameeddev" target="_blank">
                 <div class="parent-icon"><i class="bx bx-support"></i>
                 </div>
                 <div class="menu-title">Support</div>
             </a>
-        </li> --}}
+        </li>
     </ul>
     <!--end navigation-->
 </div>

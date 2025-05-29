@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Plan;
-use App\Models\Purchase;
-use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -18,12 +15,8 @@ class DatabaseSeeder extends Seeder
         User::factory()->admin()->create();
         User::factory()->user()->create();
         
-        // User::factory(50)->create();
-
-        // Plan::factory(5)->create();
-
-        // Purchase::factory(100)->create();
-
-        // Ticket::factory(5)->create();
+        $this->call([
+            PlanSeeder::class,
+        ]);
     }
 }

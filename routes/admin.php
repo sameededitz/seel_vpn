@@ -13,6 +13,7 @@ use App\Livewire\Admin\VpsManager;
 use App\Livewire\Admin\AllFeedbacks;
 use App\Livewire\Admin\AllPurchases;
 use App\Livewire\Admin\SubServerAdd;
+use App\Livewire\Admin\AllPromoCodes;
 use App\Livewire\Admin\AllSubServers;
 use App\Livewire\Admin\AllVpsServers;
 use App\Livewire\Admin\SubServerEdit;
@@ -45,6 +46,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/users', AllUsers::class)->name('users.all');
     Route::get('/user/{user:slug}/manage', ManageUser::class)->name('user.manage');
+
+    Route::get('/codes', AllPromoCodes::class)->name('promo-codes.all');
 
     Route::get('/admin-accounts', AllAdmins::class)->name('admins.all');
 
