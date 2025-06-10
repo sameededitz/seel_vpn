@@ -78,6 +78,16 @@
             </a>
         </li>
 
+         <li>
+            <a href="{{ route('promo-codes-new.all') }}">
+                <div class="parent-icon">
+                    <iconify-icon icon="ri:price-tag-3-line" class="flex-shrink-0" width="20"
+                        height="20"></iconify-icon>
+                </div>
+                <div class="menu-title">Promo Codes New</div>
+            </a>
+        </li>
+
         <li class="menu-label">Panel</li>
 
         <li>
