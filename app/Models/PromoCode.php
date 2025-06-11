@@ -8,7 +8,8 @@ class PromoCode extends Model
 {
     protected $fillable = [
         'code',
-        'plan_id',
+        'discount_percent',
+        'purchase_id',
         'user_id',
         'used_at',
         'expires_at',
@@ -20,10 +21,11 @@ class PromoCode extends Model
         'expires_at' => 'datetime',
     ];
 
-    public function plan()
+    public function purchase()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(Purchase::class);
     }
+    
     public function user()
     {
         return $this->belongsTo(User::class);
