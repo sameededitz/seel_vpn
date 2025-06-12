@@ -61,16 +61,6 @@
                                             <h6 class="text-danger mb-0" wire:click="resetFilters"
                                                 style="cursor: pointer;">Reset</h6>
                                         </div>
-                                        <div class="dropdown-item mb-3">
-                                            <label for="planFilter" class="mb-1">Filter by Plan</label>
-                                            <select id="planFilter" class="form-select w-100"
-                                                wire:model.live="planFilter">
-                                                <option value="">All Plans</option>
-                                                @foreach ($plans as $plan)
-                                                    <option value="{{ $plan->slug }}">{{ $plan->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
                                         <div class="dropdown-item">
                                             <label for="usedFilter" class="mb-1">Usage:</label>
                                             <select class="form-select w-100" id="usedFilter"
@@ -90,7 +80,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Code</th>
-                                <th>Plan</th>
+                                <th>Discount (%)</th>
                                 <th>Status</th>
                                 <th>Used By</th>
                                 <th>Used At</th>
@@ -103,7 +93,7 @@
                                 <tr>
                                     <td>{{ $code->id }}</td>
                                     <td>{{ $code->code }}</td>
-                                    <td>{{ $code->plan->name ?? '-' }}</td>
+                                    <td>{{ $code->discount_percent ?? '-' }}%</td>
                                     <td>
                                         @if ($code->user_id)
                                             <span class="text-green-600">Used</span>
@@ -159,14 +149,10 @@
                 <form class="row g-3" wire:submit.prevent="generatePromoCode">
                     <div class="modal-body">
                         <div class="col-12">
-                            <label for="plan_id" class="form-label">Select Plan</label>
-                            <select wire:model="selectedPlan" class="form-select w-100" required>
-                                <option value="">-- Select a Plan --</option>
-                                @foreach ($plans as $plan)
-                                    <option value="{{ $plan->id }}">{{ $plan->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('plan')
+                            <label for="discount" class="form-label">Discount (%)</label>
+                            <input type="number" wire:model="discount" min="1" max="100"
+                                class="form-control" required />
+                            @error('discount')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
@@ -214,7 +200,7 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $wire.deletePlan(id);
+                    $wire.deletePromoCode(id);
                 }
             });
         });

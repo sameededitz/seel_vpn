@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Plan;
 use App\Models\PromoCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PurchaseResource;
@@ -18,6 +19,7 @@ class PurchaseController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'plan_id' => 'required|exists:plans,id',
+            'promo_code' => 'nullable|string|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -25,6 +27,29 @@ class PurchaseController extends Controller
                 'status' => false,
                 'message' => $validator->errors()->all(),
             ], 400);
+        }
+
+        $promo = null;
+        $discountPercent = 0;
+        $promoCode = $request->input('promo_code');
+
+        if ($promoCode) {
+            $promo = \App\Models\PromoCode::where('code', $promoCode)
+                ->where('is_active', true)
+                ->whereNull('used_by')
+                ->where(function ($q) {
+                    $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                })
+                ->first();
+
+            if (!$promo) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid or expired promo code.',
+                ], 400);
+            }
+
+            $discountPercent = $promo->discount_percent;
         }
 
         $user = Auth::user();
@@ -35,49 +60,76 @@ class PurchaseController extends Controller
         // Determine the price to use
         $price = $plan->discount_price ?? $plan->original_price;
 
-        /** @var \App\Models\Purchase $purchase **/
-        $purchase = $user->purchases()
-            ->where('status', 'active')
-            ->where('end_date', '>', now())
-            ->first();
-
-        $duration = $plan->duration;
-
-        if ($purchase) {
-            $newEndDate = $this->calculateExpiration(
-                Carbon::parse($purchase->end_date),
-                $plan->duration,
-                $plan->duration_unit
-            );
-
-            // Update the purchase with the new expiration date
-            $purchase->update([
-                'plan_id' => $plan->id,
-                'end_date' => $newEndDate,
-                'status' => 'active',
-                'amount_paid' => $purchase->amount_paid + $price,
-            ]);
-
-            $message = 'Purchase Extended successfully!';
-        } else {
-            $expiresAt = $this->calculateExpiration(now(), $duration, $plan->duration_unit);
-            // Create a new purchase
-            $purchase = $user->purchases()->create([
-                'plan_id' => $plan->id,
-                'amount_paid' => $price,
-                'start_date' => now(),
-                'end_date' => $expiresAt,
-                'status' => 'active',
-            ]);
-
-            $message = 'Purchase created successfully!';
+        if ($discountPercent > 0) {
+            $price -= round(($price * $discountPercent) / 100, 2);
         }
 
-        return response()->json([
-            'status' => true,
-            'message' => $message,
-            'purchase' => new PurchaseResource($purchase->load('plan', 'user')),
-        ], 200);
+        try {
+            DB::beginTransaction();
+
+            /** @var \App\Models\Purchase $purchase **/
+            $purchase = $user->purchases()
+                ->where('status', 'active')
+                ->where('end_date', '>', now())
+                ->first();
+
+            $duration = $plan->duration;
+
+            if ($purchase) {
+                $newEndDate = $this->calculateExpiration(
+                    Carbon::parse($purchase->end_date),
+                    $plan->duration,
+                    $plan->duration_unit
+                );
+
+                // Update the purchase with the new expiration date
+                $purchase->update([
+                    'plan_id' => $plan->id,
+                    'end_date' => $newEndDate,
+                    'status' => 'active',
+                    'amount_paid' => $purchase->amount_paid + $price,
+                ]);
+
+                $message = 'Purchase Extended successfully!';
+            } else {
+                $expiresAt = $this->calculateExpiration(now(), $duration, $plan->duration_unit);
+                // Create a new purchase
+                $purchase = $user->purchases()->create([
+                    'plan_id' => $plan->id,
+                    'amount_paid' => $price,
+                    'start_date' => now(),
+                    'end_date' => $expiresAt,
+                    'status' => 'active',
+                ]);
+
+                $message = 'Purchase created successfully!';
+            }
+
+            if ($promo) {
+                $promo->update([
+                    'is_active' => false,
+                    'user_id' => $user->id,
+                    'used_at' => now(),
+                    'purchase_id' => $purchase->id,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => $message,
+                'purchase' => new PurchaseResource($purchase->load('plan', 'user')),
+            ], 200);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong while processing the purchase.',
+                'error' => $e->getMessage(), // Optional: remove in production
+            ], 500);
+        }
     }
 
     public function active()
@@ -152,9 +204,6 @@ class PurchaseController extends Controller
             ], 400);
         }
 
-        /** @var \App\Models\User $user **/
-        $user = Auth::user();
-
         $promo = PromoCode::where('code', $request->code)
             ->where('is_active', true)
             ->whereNull('user_id')
@@ -168,54 +217,10 @@ class PurchaseController extends Controller
             return response()->json(['message' => 'Invalid or expired promo code.'], 404);
         }
 
-        // Mark promo as used
-        $promo->update([
-            'user_id' => $user->id,
-            'used_at' => now(),
-            'is_active' => false,
-        ]);
-
-        $plan = $promo->plan;
-        $price = $plan->discount_price ?? $plan->original_price;
-
-        // Check if the user has an active purchase
-        /** @var \App\Models\Purchase $purchase **/
-        $purchase = $user->purchases()
-            ->where('status', 'active')
-            ->where('end_date', '>', now())
-            ->first();
-
-        if ($purchase) {
-            $newEndDate = $this->calculateExpiration(
-                Carbon::parse($purchase->end_date),
-                $plan->duration,
-                $plan->duration_unit
-            );
-
-            // Update the purchase with the new expiration date
-            $purchase->update([
-                'plan_id' => $plan->id,
-                'end_date' => $newEndDate,
-                'status' => 'active',
-                'amount_paid' => $purchase->amount_paid + $price,
-            ]);
-        } else {
-            $expiresAt = $this->calculateExpiration(now(), $plan->duration, $plan->duration_unit);
-            // Create a new purchase
-            $purchase = $user->purchases()->create([
-                'plan_id' => $plan->id,
-                'amount_paid' => $price,
-                'start_date' => now(),
-                'end_date' => $expiresAt,
-                'status' => 'active',
-            ]);
-        }
-
         return response()->json([
-            'status' => true,
-            'message' => 'Promo code applied successfully.',
-            'purchase' => new PurchaseResource($purchase->load('plan', 'user')),
-        ], 200);
+            'message' => 'Promo code valid.',
+            'discount_percent' => $promo->discount_percent,
+        ]);
     }
 
 public function check(Request $request)
