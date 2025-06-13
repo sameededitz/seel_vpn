@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum', 'throttle:api')->group(function () {
     Route::get('/purchase/{id}', [PurchaseController::class, 'viewPurchase'])->name('api.plan.show');
     Route::post('/purchase/add', [PurchaseController::class, 'addPurchase'])->name('api.add.purchase');
     Route::post('/apply-promo-code', [PurchaseController::class, 'apply'])->name('api.apply.promo.code');
+    Route::post('/apply-promo-code-new', [PurchaseController::class, 'check'])->name('api.apply.promo.code');
 
     Route::get('/servers', [ResourceController::class, 'servers'])->name('api.servers');
     Route::get('/nearest-server', [ResourceController::class, 'nearestServer']);
