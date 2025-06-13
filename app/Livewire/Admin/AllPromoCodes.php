@@ -75,6 +75,13 @@ class AllPromoCodes extends Component
         $this->dispatch('sweetAlert', title: 'Success', message: 'Promo code deleted successfully!', type: 'success');
     }
 
+    public function deleteAllUnused()
+    {
+        PromoCode::unused()->delete();
+        $this->dispatch('sweetAlert', title: 'Success', message: 'All unused promo codes deleted successfully!', type: 'success');
+        $this->resetPage();
+    }
+
     public function render()
     {
         $codes = PromoCode::query()

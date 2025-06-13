@@ -39,6 +39,11 @@
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                             </select>
+                            <button type="button" wire:click="$js.confirmDeleteAllUnused()"
+                                class="btn btn-outline-danger d-flex align-items-center justify-content-center">
+                                <Iconify-icon icon="mingcute:delete-2-line" width="20"
+                                    height="20"></Iconify-icon>
+                            </button>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <div class="input-group">
@@ -201,6 +206,22 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $wire.deletePromoCode(id);
+                }
+            });
+        });
+
+        $js('confirmDeleteAllUnused', () => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will delete all unused promo codes!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete all unused!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $wire.deleteAllUnused();
                 }
             });
         });
