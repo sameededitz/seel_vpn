@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PurchaseResource;
-use App\Models\NewCodes;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseController extends Controller
@@ -36,7 +35,7 @@ class PurchaseController extends Controller
         if ($promoCode) {
             $promo = \App\Models\PromoCode::where('code', $promoCode)
                 ->where('is_active', true)
-                ->whereNull('used_by')
+                ->unused()
                 ->where(function ($q) {
                     $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
                 })
