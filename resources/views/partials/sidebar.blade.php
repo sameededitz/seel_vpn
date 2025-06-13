@@ -4,7 +4,7 @@
             <img src="{{ asset('assets/images/logo-img.png') }}" class="logo-icon" alt="logo icon">
         </div>
         <div>
-            <h4 class="logo-text"> {{ config('app.name')}} </h4>
+            <h4 class="logo-text"> {{ config('app.name') }} </h4>
         </div>
         <div class="toggle-icon ms-auto"><i class='bx bx-arrow-back'></i>
         </div>
@@ -78,16 +78,6 @@
             </a>
         </li>
 
-         <li>
-            <a href="{{ route('promo-codes-new.all') }}">
-                <div class="parent-icon">
-                    <iconify-icon icon="ri:price-tag-3-line" class="flex-shrink-0" width="20"
-                        height="20"></iconify-icon>
-                </div>
-                <div class="menu-title">Promo Codes New</div>
-            </a>
-        </li>
-
         <li class="menu-label">Panel</li>
 
         <li>
@@ -142,7 +132,8 @@
                 </li>
                 <li>
                     <a href="{{ route('settings.tos') }}" aria-expanded="false">
-                        <iconify-icon icon="carbon:policy" class="me-2" width="16" height="16"></iconify-icon>
+                        <iconify-icon icon="carbon:policy" class="me-2" width="16"
+                            height="16"></iconify-icon>
                         Tos
                     </a>
                 </li>

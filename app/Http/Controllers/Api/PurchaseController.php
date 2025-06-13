@@ -223,43 +223,6 @@ class PurchaseController extends Controller
         ]);
     }
 
-public function check(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'code' => 'required|string',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => false,
-            'message' => $validator->errors()->all(),
-        ], 400);
-    }
-
-    $promo = NewCodes::where('code', $request->code)
-        ->where('is_active', true)
-        ->whereNull('user_id')
-        ->where(function ($query) {
-            $query->whereNull('expires_at')
-                ->orWhere('expires_at', '>', now());
-        })
-        ->first();
-
-    if (!$promo) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Invalid or expired promo code.',
-        ], 404);
-    }
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Promo code is valid.',
-        'percentage' => $promo->percentage,
-    ], 200);
-}
-
-
     private function calculateExpiration($startDate, $duration, $unit)
     {
         return match ($unit) {
