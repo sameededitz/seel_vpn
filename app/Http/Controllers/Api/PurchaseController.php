@@ -33,12 +33,10 @@ class PurchaseController extends Controller
         $promoCode = $request->input('promo_code');
 
         if ($promoCode) {
-            $promo = \App\Models\PromoCode::where('code', $promoCode)
+            $promo = PromoCode::where('code', $promoCode)
                 ->where('is_active', true)
                 ->unused()
-                ->where(function ($q) {
-                    $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-                })
+                ->notExpired()
                 ->first();
 
             if (!$promo) {

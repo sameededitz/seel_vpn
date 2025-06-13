@@ -45,6 +45,10 @@ class PromoCode extends Model
     {
         return $query->where('end_date', '<', now());
     }
+    public function scopeNotExpired($query)
+    {
+        return $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+    }
     public function scopeUsed($query)
     {
         return $query->whereNotNull('used_at');
