@@ -82,14 +82,20 @@ class ManageUser extends Component
         ]);
 
         $plan = Plan::findOrFail($this->selectedPlan);
+        $price = $plan->discount_price ?? $plan->original_price;
         $activePurchase = $this->user->activePlan;
+
+        if ($activePurchase && $activePurchase->plan_id === $plan->id) {
+            $this->dispatch('sweetAlert', title: 'Info', message: 'You already have this plan active.', type: 'info');
+            return;
+        }
 
         if ($activePurchase) {
             $newExpiresAt = $this->calculateExpiry($activePurchase->end_date, $plan);
 
             $activePurchase->update([
                 'plan_id' => $plan->id,
-                'amount_paid' => $activePurchase->amount_paid + $plan->price,
+                'amount_paid' => $activePurchase->amount_paid + $price,
                 'end_date' => $newExpiresAt
             ]);
 
@@ -99,7 +105,7 @@ class ManageUser extends Component
 
             $this->user->purchases()->create([
                 'plan_id' => $plan->id,
-                'amount_paid' => $plan->price,
+                'amount_paid' => $price,
                 'start_date' => now(),
                 'end_date' => $expiresAt,
                 'status' => 'active',
