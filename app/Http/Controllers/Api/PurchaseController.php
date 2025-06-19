@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PurchaseResource;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseController extends Controller
@@ -27,6 +28,12 @@ class PurchaseController extends Controller
                 'message' => $validator->errors()->all(),
             ], 400);
         }
+
+        Log::info('PurchaseController@addPurchase called', [
+            'user_id' => Auth::id(),
+            'plan_id' => $request->plan_id,
+            'promo_code' => $request->input('promo_code'),
+        ]);
 
         $promo = null;
         $discountPercent = 0;
