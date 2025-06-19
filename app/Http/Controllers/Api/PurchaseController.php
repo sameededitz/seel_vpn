@@ -6,11 +6,12 @@ use Carbon\Carbon;
 use App\Models\Plan;
 use App\Models\PromoCode;
 use Illuminate\Http\Request;
+use App\Models\StripeSession;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PurchaseResource;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseController extends Controller
@@ -20,6 +21,7 @@ class PurchaseController extends Controller
         $validator = Validator::make($request->all(), [
             'plan_id' => 'required|exists:plans,id',
             'promo_code' => 'nullable|string|max:50',
+            'payment_intent' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -27,6 +29,18 @@ class PurchaseController extends Controller
                 'status' => false,
                 'message' => $validator->errors()->all(),
             ], 400);
+        }
+
+        $paymentIntent = $request->payment_intent;
+        if ($paymentIntent) {
+            $existingSession = StripeSession::where('payment_intent', $paymentIntent)->first();
+
+            if ($existingSession) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Purchase already processed!',
+                ], 200);
+            }
         }
 
         Log::info('PurchaseController@addPurchase called', [
@@ -118,6 +132,14 @@ class PurchaseController extends Controller
                 ]);
             }
 
+            if ($paymentIntent) {
+                StripeSession::create([
+                    'payment_intent' => $paymentIntent,
+                    'user_id' => $user->id,
+                    'purchase_id' => $purchase->id,
+                ]);
+            }
+
             DB::commit();
 
             return response()->json([
@@ -134,6 +156,29 @@ class PurchaseController extends Controller
                 'error' => $e->getMessage(), // Optional: remove in production
             ], 500);
         }
+    }
+
+    public function stripeSession(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'payment_intent' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->all(),
+            ], 400);
+        }
+
+        $paymentIntent = StripeSession::where('payment_intent', $request->payment_intent)->first();
+
+        return response()->json([
+            'status' => true,
+            'is_used' => (bool) $paymentIntent,
+            'payment_intent' => $request->payment_intent,
+            'message' => $paymentIntent ? 'Payment intent found.' : 'Payment intent not found.',
+        ], 200);
     }
 
     public function active()
