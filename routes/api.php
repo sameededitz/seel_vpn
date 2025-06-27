@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\BillingAddressController;
+use App\Http\Middleware\EnsureUserIsActive;
 
 Route::middleware(['guest', 'throttle:api'])->group(function () {
     Route::post('/signup', [AuthController::class, 'signup'])->name('api.signup');
@@ -32,12 +33,14 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'authorized'])->group(functio
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
 
-    Route::get('/purchase/active', [PurchaseController::class, 'active'])->name('api.plan.active')->excludedMiddleware('authorized');
-    Route::get('/purchase/history', [PurchaseController::class, 'history'])->name('api.plan.history')->excludedMiddleware('authorized');
-    Route::get('/purchase/{id}', [PurchaseController::class, 'viewPurchase'])->name('api.plan.show')->excludedMiddleware('authorized');
-    Route::post('/purchase/add', [PurchaseController::class, 'addPurchase'])->name('api.add.purchase')->excludedMiddleware('authorized');
-    Route::post('/purchase/stripe-session', [PurchaseController::class, 'stripeSession'])->name('api.purchase.stripe.session')->excludedMiddleware('authorized');
-    Route::post('/apply-promo-code', [PurchaseController::class, 'apply'])->name('api.apply.promo.code')->excludedMiddleware('authorized');
+    Route::withoutMiddleware('authorized')->group(function () {
+        Route::get('/purchase/active', [PurchaseController::class, 'active'])->name('api.plan.active');
+        Route::get('/purchase/history', [PurchaseController::class, 'history'])->name('api.plan.history');
+        Route::get('/purchase/{id}', [PurchaseController::class, 'viewPurchase'])->name('api.plan.show');
+        Route::post('/purchase/add', [PurchaseController::class, 'addPurchase'])->name('api.add.purchase');
+        Route::post('/purchase/stripe-session', [PurchaseController::class, 'stripeSession'])->name('api.purchase.stripe.session');
+        Route::post('/apply-promo-code', [PurchaseController::class, 'apply'])->name('api.apply.promo.code');
+    });
 
     Route::get('/servers', [ResourceController::class, 'servers'])->name('api.servers');
     Route::get('/nearest-server', [ResourceController::class, 'nearestServer']);
