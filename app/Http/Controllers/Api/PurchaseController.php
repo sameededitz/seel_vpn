@@ -8,6 +8,7 @@ use App\Models\PromoCode;
 use Illuminate\Http\Request;
 use App\Models\StripeSession;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SendEmailVerification;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -43,11 +44,6 @@ class PurchaseController extends Controller
             }
         }
 
-        Log::info('PurchaseController@addPurchase called', [
-            'user_id' => Auth::id(),
-            'plan_id' => $request->plan_id,
-            'promo_code' => $request->input('promo_code'),
-        ]);
 
         $promo = null;
         $discountPercent = 0;
@@ -138,6 +134,10 @@ class PurchaseController extends Controller
                     'user_id' => $user->id,
                     'purchase_id' => $purchase->id,
                 ]);
+            }
+
+            if (!$user->hasVerifiedEmail()) {
+                SendEmailVerification::dispatch($user)->delay(now()->addSeconds(5));
             }
 
             DB::commit();

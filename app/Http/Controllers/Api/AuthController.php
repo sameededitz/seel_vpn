@@ -38,11 +38,21 @@ class AuthController extends Controller
 
         SendEmailVerification::dispatch($user)->delay(now()->addSeconds(5));
 
-        return response()->json([
+        // Detect if request is from SPA or Mobile
+        $isSpa = $request->has('spa') && $request->spa === true;
+
+        $response = [
             'status' => true,
             'message' => 'User created successfully',
             'user' => new UserResource($user),
-        ], 201);
+        ];
+
+        if ($isSpa) {
+            Auth::login($user);
+            $response['token'] = $user->createToken('auth_token')->plainTextToken;
+        }
+
+        return response()->json($response, 201);
     }
 
     public function login(Request $request)
