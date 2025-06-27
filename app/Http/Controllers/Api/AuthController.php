@@ -49,7 +49,8 @@ class AuthController extends Controller
 
         if ($isSpa) {
             Auth::login($user);
-            $response['token'] = $user->createToken('auth_token')->plainTextToken;
+            $response['access_token'] = $user->createToken('auth_token')->plainTextToken;
+            $response['token_type'] = 'Bearer';
         }
 
         return response()->json($response, 201);
