@@ -87,6 +87,7 @@
                                 <th>Code</th>
                                 <th>Discount (%)</th>
                                 <th>Status</th>
+                                <th>Type</th>
                                 <th>Used By</th>
                                 <th>Used At</th>
                                 <th>Expires At</th>
@@ -100,24 +101,59 @@
                                     <td>{{ $code->code }}</td>
                                     <td>{{ $code->discount_percent ?? '-' }}%</td>
                                     <td>
-                                        @if ($code->user_id)
-                                            <span class="text-green-600">Used</span>
-                                        @else
-                                            <span class="text-gray-600">Unused</span>
+                                        @if ($code->type === 'single_use')
+                                            @if ($code->uses_count > 0)
+                                                <span class="text-green-600">Used</span>
+                                            @else
+                                                <span class="text-gray-600">Unused</span>
+                                            @endif
+                                        @elseif ($code->type === 'multi_use')
+                                            @if ($code->uses_count >= $code->max_uses)
+                                                <span class="text-red-600">Expired</span>
+                                            @elseif ($code->uses_count > 0)
+                                                <span class="text-blue-600">Partially Used</span>
+                                            @else
+                                                <span class="text-gray-600">Unused</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($code->user)
-                                            <a href="{{ route('user.manage', $code->user->id) }}"
-                                                class="text-info">{{ $code->user->email }}</a>
+                                        @if ($code->type === 'single_use')
+                                            <span class="badge bg-primary">Single Use</span>
+                                        @else
+                                            <span class="badge bg-secondary">Multi Use
+                                                (Max:{{ $code->max_uses }})</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($code->type === 'multi_use')
+                                            <span>{{ $code->users_count }} user(s)</span>
+                                        @elseif ($code->users_count > 0)
+                                            @php $user = $code->users()->latest('promo_code_user.used_at')->first(); @endphp
+                                            <a href="{{ route('user.manage', $user->id) }}" class="text-info">
+                                                {{ $user->email }}
+                                            </a>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
-                                    <td>{{ $code->used_at?->diffForHumans() ?? '-' }}</td>
+                                    <td>
+                                        @php
+                                            $usedAt = $code->users()->latest('promo_code_user.used_at')->first()?->pivot
+                                                ->used_at;
+                                        @endphp
+                                        {{ $usedAt ? \Carbon\Carbon::parse($usedAt)->diffForHumans() : '-' }}
+                                    </td>
                                     <td>{{ $code->expires_at?->toFormattedDateString() ?? '-' }}</td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
+                                            <button type="button" wire:click="viewPromoDetails({{ $code->id }})"
+                                                class="btn btn-outline-info d-flex align-items-center justify-content-center"
+                                                data-bs-toggle="modal" data-bs-target="#promoDetailsModal">
+                                                <Iconify-icon icon="mdi:eye-outline" width="20"
+                                                    height="20"></Iconify-icon>
+                                            </button>
+
                                             <button type="button" wire:click="$js.confirmDelete({{ $code->id }})"
                                                 class="btn btn-outline-danger d-flex align-items-center justify-content-center">
                                                 <Iconify-icon icon="mingcute:delete-2-line" width="20"
@@ -141,6 +177,59 @@
         </div>
     </div>
 
+    <div class="modal fade" id="promoDetailsModal" tabindex="-1" wire:ignore.self
+        aria-labelledby="promoDetailsModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" wire:loading.remove>
+                <div class="modal-header">
+                    <h5 class="modal-title">Promo Code Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        wire:click="resetForm"></button>
+                </div>
+
+                <div class="modal-body">
+                    @if ($selectedPromo)
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Code:</strong> {{ $selectedPromo->code }}</li>
+                            <li class="list-group-item"><strong>Type:</strong>
+                                {{ ucfirst(str_replace('_', ' ', $selectedPromo->type)) }}</li>
+                            <li class="list-group-item"><strong>Discount:</strong>
+                                {{ $selectedPromo->discount_percent }}%</li>
+                            <li class="list-group-item"><strong>Max Uses:</strong>
+                                {{ $selectedPromo->max_uses ?? '-' }}</li>
+                            <li class="list-group-item"><strong>Expires At:</strong>
+                                {{ $selectedPromo->expires_at?->toFormattedDateString() ?? '-' }}</li>
+                            <li class="list-group-item"><strong>Used By:</strong> {{ $selectedPromo->users->count() }}
+                                user(s)</li>
+                        </ul>
+
+                        <hr>
+
+                        @if ($selectedPromo->users->count())
+                            <h6>Users who used this code:</h6>
+                            <ul class="list-group">
+                                @foreach ($selectedPromo->users as $user)
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a href="{{ route('user.manage', $user->id) }}"
+                                                class="text-primary">{{ $user->email }}</a>
+                                            <small class="d-block">Used at:
+                                                {{ \Carbon\Carbon::parse($user->pivot->used_at)->toDayDateTimeString() }}</small>
+                                        </div>
+                                        <span class="badge bg-primary">Purchase ID:
+                                            {{ $user->pivot->purchase_id }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="mt-2 mb-0">No user has used this promo code yet.</p>
+                        @endif
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="promoCodeModel" tabindex="-1" wire:ignore.self aria-labelledby="promoCodeModel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -153,7 +242,7 @@
 
                 <form class="row g-3" wire:submit.prevent="generatePromoCode">
                     <div class="modal-body">
-                        <div class="col-12">
+                        <div class="col-12 mb-2">
                             <label for="discount" class="form-label">Discount (%)</label>
                             <input type="number" wire:model="discount" min="1" max="100"
                                 class="form-control" required />
@@ -162,7 +251,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-12">
+                        <div class="col-12 mb-2">
                             <label for="count" class="form-label">Number of Codes</label>
                             <input type="number" wire:model="count" min="1" max="100"
                                 class="form-control" required />
@@ -170,6 +259,28 @@
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <div class="col-12 mb-2">
+                            <label for="type" class="form-label">Promo Code Type</label>
+                            <select wire:model.live="type" class="form-select w-100">
+                                <option value="single_use">Single Use</option>
+                                <option value="multi_use">Multi Use</option>
+                            </select>
+                            @error('type')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        @if ($type === 'multi_use')
+                            <div class="col-12 mb-2">
+                                <label for="maxUses" class="form-label">Max Uses</label>
+                                <input type="number" wire:model="maxUses" min="1" max="1000"
+                                    class="form-control" />
+                                @error('maxUses')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        @endif
 
                         <div class="col-12">
                             <label for="expiresAt" class="form-label">Expiry Date</label>

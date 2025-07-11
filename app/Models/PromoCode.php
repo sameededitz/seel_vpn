@@ -10,8 +10,9 @@ class PromoCode extends Model
         'code',
         'discount_percent',
         'purchase_id',
-        'user_id',
-        'used_at',
+        'type',
+        'max_uses',
+        'uses_count',
         'expires_at',
         'is_active',
     ];
@@ -25,10 +26,17 @@ class PromoCode extends Model
     {
         return $this->belongsTo(Purchase::class);
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'promo_code_user')
+            ->withPivot(['used_at', 'purchase_id'])
+            ->withTimestamps();
     }
 
     public function scopeValid($query)
@@ -48,13 +56,5 @@ class PromoCode extends Model
     public function scopeNotExpired($query)
     {
         return $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
-    }
-    public function scopeUsed($query)
-    {
-        return $query->whereNotNull('used_at');
-    }
-    public function scopeUnused($query)
-    {
-        return $query->whereNull('used_at');
     }
 }

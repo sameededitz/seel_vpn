@@ -7,9 +7,9 @@ use App\Models\Plan;
 use App\Models\PromoCode;
 use Illuminate\Http\Request;
 use App\Models\StripeSession;
+use App\Services\PromoCodeService;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\SendEmailVerification;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\PurchaseResource;
@@ -44,7 +44,6 @@ class PurchaseController extends Controller
             }
         }
 
-
         $promo = null;
         $discountPercent = 0;
         $promoCode = $request->input('promo_code');
@@ -52,8 +51,9 @@ class PurchaseController extends Controller
         if ($promoCode) {
             $promo = PromoCode::where('code', $promoCode)
                 ->where('is_active', true)
-                ->unused()
-                ->notExpired()
+                ->where(function ($query) {
+                    $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                })
                 ->first();
 
             if (!$promo) {
@@ -61,6 +61,23 @@ class PurchaseController extends Controller
                     'status' => false,
                     'message' => 'Invalid or expired promo code.',
                 ], 400);
+            }
+
+            $user = Auth::user();
+
+            $alreadyUsed = DB::table('promo_code_user')
+                ->where('promo_code_id', $promo->id)
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if ($alreadyUsed || (
+                $promo->type === 'single_use' && $promo->uses_count > 0
+            ) || (
+                $promo->type === 'multi_use' &&
+                !is_null($promo->max_uses) &&
+                $promo->uses_count >= $promo->max_uses
+            )) {
+                return response()->json(['message' => 'Promo code already used or usage limit reached.'], 403);
             }
 
             $discountPercent = $promo->discount_percent;
@@ -120,12 +137,7 @@ class PurchaseController extends Controller
             }
 
             if ($promo) {
-                $promo->update([
-                    'is_active' => false,
-                    'user_id' => $user->id,
-                    'used_at' => now(),
-                    'purchase_id' => $purchase->id,
-                ]);
+                app(PromoCodeService::class)->apply($promo, $user, $purchase->id);
             }
 
             if ($paymentIntent) {
@@ -240,7 +252,7 @@ class PurchaseController extends Controller
         ], 200);
     }
 
-    public function apply(Request $request)
+    public function apply(Request $request, PromoCodeService $promoCodeService)
     {
         $validator = Validator::make($request->all(), [
             'code' => 'required|string',
@@ -253,17 +265,11 @@ class PurchaseController extends Controller
             ], 400);
         }
 
-        $promo = PromoCode::where('code', $request->code)
-            ->where('is_active', true)
-            ->whereNull('user_id')
-            ->where(function ($query) {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->first();
+        $user = Auth::user();
+        $promo = $promoCodeService->validate($request->code, $user);
 
         if (!$promo) {
-            return response()->json(['message' => 'Invalid or expired promo code.'], 404);
+            return response()->json(['message' => 'Invalid, expired, or already used promo code.'], 404);
         }
 
         return response()->json([

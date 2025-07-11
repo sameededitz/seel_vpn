@@ -110,7 +110,7 @@
                                     <td>{{ $user->id }}</td>
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->email }}</td>
-                                    <td>Free</td>
+                                    <td>{{ $user->activePlan->plan->name ?? 'N/A' }}</td>
                                     <td>{{ $user->last_login ? $user->last_login->diffForHumans() : 'N/A' }}
                                     </td>
                                     <td>{{ $user->created_at->toFormattedDateString() }}</td>

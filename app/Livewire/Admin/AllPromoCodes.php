@@ -22,11 +22,27 @@ class AllPromoCodes extends Component
     public ?int $discount = null;
     public ?string $expiresAt = null;
 
+    public string $type = 'single_use';
+    public ?int $maxUses = null;
+
+    public ?PromoCode $selectedPromo = null;
+
+    public function viewPromoDetails($id)
+    {
+        $this->resetForm();
+        $this->selectedPromo = PromoCode::with(['users' => function ($query) {
+            $query->withPivot('used_at', 'purchase_id')->latest('promo_code_user.used_at');
+        }])->findOrFail($id);
+    }
+
     public function resetForm()
     {
         $this->count = 1;
         $this->discount = null;
         $this->expiresAt = null;
+        $this->type = 'single_use'; // Reset type to default
+        $this->maxUses = null; // Reset maxUses to null
+        $this->selectedPromo = null;
         $this->resetValidation();
         $this->resetPage();
     }
@@ -37,14 +53,18 @@ class AllPromoCodes extends Component
             'discount' => 'required|integer|min:1|max:100',
             'count' => 'required|integer|min:1|max:100',
             'expiresAt' => 'required|date|after:now',
+            'type' => 'required|in:single_use,multi_use',
+            'maxUses' => 'nullable|required_if:type,multi_use|integer|min:1|max:100',
         ]);
 
         for ($i = 0; $i < $this->count; $i++) {
             PromoCode::create([
                 'code' => strtoupper(Str::random(8)),
                 'discount_percent' => $this->discount,
-                'is_active' => true,
                 'expires_at' => $this->expiresAt,
+                'type' => $this->type,
+                'max_uses' => $this->type === 'multi_use' ? $this->maxUses : null,
+                'is_active' => true,
             ]);
         }
 
@@ -85,15 +105,15 @@ class AllPromoCodes extends Component
     public function render()
     {
         $codes = PromoCode::query()
-            ->with(['purchase', 'user'])
+            ->withCount('users') // Pivot usage count
             ->when($this->search, function ($query) {
                 $query->where('code', 'like', '%' . $this->search . '%');
             })
             ->when($this->usedFilter, function ($query) {
                 if ($this->usedFilter === 'used') {
-                    $query->used();
+                    $query->where('uses_count', '>', 0);
                 } elseif ($this->usedFilter === 'unused') {
-                    $query->unused();
+                    $query->where('uses_count', 0);
                 }
             })
             ->paginate($this->perPage);

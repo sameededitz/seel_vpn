@@ -98,6 +98,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(BillingAddress::class);
     }
 
+    public function promoCodes()
+    {
+        return $this->belongsToMany(PromoCode::class, 'promo_code_user')
+            ->withPivot(['used_at', 'purchase_id'])
+            ->withTimestamps();
+    }
+
     public function isBanned(): bool
     {
         return !is_null($this->banned_at);
