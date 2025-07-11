@@ -164,7 +164,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">No Promo Codes found</td>
+                                    <td colspan="9" class="text-center">No Promo Codes found</td>
                                 </tr>
                             @endforelse
                         </tbody>
