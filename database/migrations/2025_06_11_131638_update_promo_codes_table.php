@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('promo_codes', function (Blueprint $table) {
-            $table->foreignId('plan_id')->constrained('plans')->onDelete('cascade');
+            $table->foreignId('plan_id')->nullable()->constrained('plans')->onDelete('cascade');
             $table->dropColumn('discount_percent');
             $table->dropForeign(['purchase_id']);
             $table->dropColumn('purchase_id');
