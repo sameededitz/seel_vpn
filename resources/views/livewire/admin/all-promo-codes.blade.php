@@ -211,7 +211,7 @@
                                 @foreach ($selectedPromo->users as $user)
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <a href="{{ route('user.manage', $user->id) }}"
+                                            <a href="{{ route('user.manage', $user->slug) }}"
                                                 class="text-primary">{{ $user->email }}</a>
                                             <small class="d-block">Used at:
                                                 {{ \Carbon\Carbon::parse($user->pivot->used_at)->toDayDateTimeString() }}</small>
