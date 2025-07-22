@@ -296,7 +296,7 @@
                         @if ($type === 'multi_use')
                             <div class="col-12 mb-2">
                                 <label for="maxUses" class="form-label">Max Uses</label>
-                                <input type="number" wire:model="maxUses" min="1" max="1000"
+                                <input type="number" wire:model="maxUses"min="1" max="100"
                                     class="form-control" />
                                 @error('maxUses')
                                     <span class="text-danger">{{ $message }}</span>
