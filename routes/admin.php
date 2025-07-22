@@ -49,7 +49,7 @@ Route::group(['middleware' => ['auth', 'role:admin']], function () {
     Route::get('/user/{user:slug}/manage', ManageUser::class)->name('user.manage');
 
     Route::get('/codes', AllPromoCodes::class)->name('promo-codes.all');
-    Route::get('/codes/export/unused', [PromoCodeExportController::class, 'unused'])->name('export.unused.codes');
+    Route::get('/codes/export/unused', [PromoCodeExportController::class, 'export'])->name('export.unused.codes');
 
     Route::get('/admin-accounts', AllAdmins::class)->name('admins.all');
 

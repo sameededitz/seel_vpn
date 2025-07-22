@@ -44,16 +44,33 @@
                                 <Iconify-icon icon="mingcute:delete-2-line" width="20"
                                     height="20"></Iconify-icon>
                             </button>
-                            <a href="{{ route('export.unused.codes', [
-                                'search' => $search,
-                                'type' => $typeFilter,
-                                'usage' => $usedFilter,
-                            ]) }}"
-                                class="btn btn-outline-success d-flex align-items-center justify-content-center">
-                                <iconify-icon icon="solar:download-outline" width="20"
-                                    height="20"></iconify-icon>
-                                <span class="ms-1">Export</span>
-                            </a>
+
+                            <div class="dropdown">
+                                <button class="btn btn-outline-success dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">
+                                    Export
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('export.unused.codes', ['format' => 'csv', 'search' => $search, 'type' => $typeFilter, 'usage' => $usedFilter]) }}">
+                                            Export as CSV
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('export.unused.codes', ['format' => 'xlsx', 'search' => $search, 'type' => $typeFilter, 'usage' => $usedFilter]) }}">
+                                            Export as Excel
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('export.unused.codes', ['format' => 'pdf', 'search' => $search, 'type' => $typeFilter, 'usage' => $usedFilter]) }}">
+                                            Export as PDF
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
 
                         </div>
                         <div class="d-flex align-items-center gap-2">

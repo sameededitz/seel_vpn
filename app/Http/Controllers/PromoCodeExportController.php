@@ -3,58 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\PromoCode;
+use App\Exports\PromoCodesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PromoCodeExportController extends Controller
 {
-    public function unused(Request $request)
+    public function export(Request $request)
     {
-        $filename = 'promo_codes_export_' . now()->format('Y_m_d_H_i_s') . '.csv';
+        $format = $request->get('format', 'xlsx'); // default
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        $formats = [
+            'xlsx' => \Maatwebsite\Excel\Excel::XLSX,
+            'csv'  => \Maatwebsite\Excel\Excel::CSV,
+            'pdf'  => \Maatwebsite\Excel\Excel::DOMPDF,
         ];
 
-        $callback = function () use ($request) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Code', 'Discount (%)', 'Type', 'Max Uses', 'Uses Count', 'Expires At']);
+        $extension = array_key_exists($format, $formats) ? $format : 'xlsx';
 
-            $hasFilters = $request->filled('search') || $request->filled('type') || $request->filled('usage');
-
-            $query = PromoCode::query();
-
-            if ($hasFilters) {
-                $query
-                    ->when($request->filled('search'), fn($q) => $q->where('code', 'like', '%' . $request->search . '%'))
-                    ->when($request->filled('type'), fn($q) => $q->where('type', $request->type))
-                    ->when($request->filled('usage'), function ($q) use ($request) {
-                        if ($request->usage === 'used') {
-                            $q->where('uses_count', '>', 0);
-                        } elseif ($request->usage === 'unused') {
-                            $q->where('uses_count', 0);
-                        }
-                    });
-            } else {
-                // Default to unused
-                $query->where('uses_count', 0);
-            }
-
-            $query->orderBy('created_at', 'desc')->get()
-                ->each(function ($code) use ($handle) {
-                    fputcsv($handle, [
-                        $code->code,
-                        $code->discount_percent,
-                        $code->type,
-                        $code->max_uses ?? 'Unlimited',
-                        $code->uses_count,
-                        optional($code->expires_at)->toDateString() ?? '-',
-                    ]);
-                });
-
-            fclose($handle);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(
+            new PromoCodesExport(
+                search: $request->get('search'),
+                type: $request->get('type'),
+                usage: $request->get('usage'),
+            ),
+            'promo_codes_export_' . now()->format('Y_m_d_H_i_s') . '.' . $extension,
+            $formats[$extension]
+        );
     }
 }
