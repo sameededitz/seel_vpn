@@ -65,7 +65,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item"
-                                            href="{{ route('export.unused.codes', ['format' => 'pdf', 'search' => $search, 'type' => $typeFilter, 'usage' => $usedFilter]) }}">
+                                            href="{{ route('export.unused.codes.pdf', ['format' => 'pdf', 'search' => $search, 'type' => $typeFilter, 'usage' => $usedFilter]) }}">
                                             Export as PDF
                                         </a>
                                     </li>
