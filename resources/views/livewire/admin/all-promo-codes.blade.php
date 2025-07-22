@@ -44,6 +44,17 @@
                                 <Iconify-icon icon="mingcute:delete-2-line" width="20"
                                     height="20"></Iconify-icon>
                             </button>
+                            <a href="{{ route('export.unused.codes', [
+                                'search' => $search,
+                                'type' => $typeFilter,
+                                'usage' => $usedFilter,
+                            ]) }}"
+                                class="btn btn-outline-success d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:download-outline" width="20"
+                                    height="20"></iconify-icon>
+                                <span class="ms-1">Export</span>
+                            </a>
+
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <div class="input-group">
@@ -73,6 +84,15 @@
                                                 <option value="">All</option>
                                                 <option value="used">Used</option>
                                                 <option value="unused">Unused</option>
+                                            </select>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <label for="typeFilter" class="mb-1">Type:</label>
+                                            <select class="form-select w-100" id="typeFilter"
+                                                wire:model.live="typeFilter">
+                                                <option value="">All</option>
+                                                <option value="single_use">Single Use</option>
+                                                <option value="multi_use">Multi Use</option>
                                             </select>
                                         </div>
                                     </li>
@@ -122,7 +142,8 @@
                                             <span class="badge bg-primary">Single Use</span>
                                         @else
                                             <span class="badge bg-secondary">Multi Use
-                                                (Max:{{ $code->max_uses }})</span>
+                                                (Max:{{ $code->max_uses }})
+                                            </span>
                                         @endif
                                     </td>
                                     <td>
@@ -154,7 +175,8 @@
                                                     height="20"></Iconify-icon>
                                             </button>
 
-                                            <button type="button" wire:click="$js.confirmDelete({{ $code->id }})"
+                                            <button type="button"
+                                                wire:click="$js.confirmDelete({{ $code->id }})"
                                                 class="btn btn-outline-danger d-flex align-items-center justify-content-center">
                                                 <Iconify-icon icon="mingcute:delete-2-line" width="20"
                                                     height="20"></Iconify-icon>

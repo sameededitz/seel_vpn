@@ -27,11 +27,6 @@ class PromoCode extends Model
         return $this->belongsTo(Purchase::class);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function users()
     {
         return $this->belongsToMany(User::class, 'promo_code_user')

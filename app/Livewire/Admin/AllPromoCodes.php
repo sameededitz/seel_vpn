@@ -13,10 +13,12 @@ class AllPromoCodes extends Component
     use WithPagination;
 
     public string $search = '';
+    public int $perPage = 5;
 
     #[Url('usage')]
     public string $usedFilter = '';
-    public int $perPage = 5;
+    #[Url('type')]
+    public string $typeFilter = '';
 
     public int $count = 1;
     public ?int $discount = null;
@@ -81,11 +83,16 @@ class AllPromoCodes extends Component
     {
         $this->resetPage();
     }
+    public function updatedTypeFilter()
+    {
+        $this->resetPage();
+    }
 
     public function resetFilters()
     {
         $this->search = '';
         $this->usedFilter = '';
+        $this->typeFilter = '';
         $this->resetPage();
     }
 
@@ -116,6 +123,14 @@ class AllPromoCodes extends Component
                     $query->where('uses_count', 0);
                 }
             })
+            ->when($this->typeFilter, function ($query) {
+                if ($this->typeFilter === 'single_use') {
+                    $query->where('type', 'single_use');
+                } elseif ($this->typeFilter === 'multi_use') {
+                    $query->where('type', 'multi_use');
+                }
+            })
+            ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
         /** @disregard @phpstan-ignore-line */

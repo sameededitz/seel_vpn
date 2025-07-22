@@ -17,6 +17,5 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PlanSeeder::class,
         ]);
-        // User::factory()->count(10)->create();
     }
 }
