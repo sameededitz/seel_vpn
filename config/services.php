@@ -50,4 +50,8 @@ return [
         'private_key' => env('APPLE_PRIVATE_KEY'),
     ],
 
+    'script_runner' => [
+        'url' => env('SCRIPT_BASE_URL', 'https://scripts.tecclubb.com'),
+    ],
+
 ];

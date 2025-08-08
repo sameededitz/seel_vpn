@@ -203,41 +203,22 @@
 
     <div class="row mb-3">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-end">
-            <button type="button" wire:click="runScript"
-                class="btn btn-outline-info d-flex align-items-center justify-content-center float-end gap-2">
-
-                <iconify-icon icon="carbon:script" width="24" height="24" wire:loading.remove
-                    wire:target="runScript" class="transition-all duration-300"></iconify-icon>
-
-                <iconify-icon icon="radix-icons:reload" width="24" height="24" wire:loading
-                    wire:target="runScript" class="animate-spin transition-all duration-300"></iconify-icon>
-
-                <span wire:loading.remove wire:target="runScript">
-                    Run IKEv2 Script
-                </span>
-
-                <span wire:loading wire:target="runScript">
-                    Loading...
-                </span>
-
-            </button>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <div class="card bg-dark text-white">
-                <div class="card-header">
-                    Script Output
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h3 class="card-title mb-0">Server Actions</h3>
                 </div>
-                <div class="card-body p-0">
-                    <pre id="script-output" class="mb-0 terminal-output" wire:stream="output"
-                        style="height: 400px; overflow-y: auto; padding: 1rem; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; background-color: #1e1e1e; color: #00ff00; white-space: pre-wrap; word-wrap: break-word;">{{ $output }}</pre>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3 flex-wrap row-gap-3">
+                        <button type="button" wire:click="getScriptUrl('ikev2_wg.sh')"
+                            class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2">
+                            <iconify-icon icon="material-symbols-light:terminal-rounded" width="24" height="24"></iconify-icon>
+                            Run IKEv2 + WireGuard
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 
 </div>
 @script
@@ -335,6 +316,10 @@
             cpuChart.updateSeries([cpuUsage]);
             ramChart.updateSeries([ramPercent.toFixed(2)]);
             diskChart.updateSeries([diskPercent.toFixed(2)]);
+        });
+
+        $wire.on('open-script-url', (event) => {
+            window.open(event.url, '_blank');
         });
 
         $wire.on('sweetToast', (event) => {
