@@ -141,7 +141,7 @@
         </li>
         <li class="menu-label">Others</li>
         <li>
-            <a href="https://linktr.ee/sameeddev" target="_blank">
+            <a href="https://www.tecclubx.com" target="_blank">
                 <div class="parent-icon"><i class="bx bx-support"></i>
                 </div>
                 <div class="menu-title">Support</div>
